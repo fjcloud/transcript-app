@@ -23,8 +23,9 @@ Create a simple audio transcription application consisting of a Go backend serve
   - `LLM_URL`: The HTTP URL of the LLM server (e.g., `http://localhost:8001`)
   - `LLM_MODEL`: The LLM model name to use for summarization (default: `gpt-3.5-turbo`)
 
-### Frontend - Pure JavaScript
-- **Purpose**: Provide a simple, beautiful web interface for audio transcription and summarization
+### Frontend - Pure JavaScript with PatternFly
+- **Purpose**: Provide a professional, Red Hat-branded web interface for audio transcription and summarization
+- **UI Framework**: PatternFly 5 (Red Hat's design system)
 - **Features**:
   1. **Audio Recording**:
      - Request microphone permissions from the user
@@ -45,8 +46,10 @@ Create a simple audio transcription application consisting of a Go backend serve
      - Display summary results
      - Copy summary to clipboard
 - **Requirements**:
-  - Use only vanilla JavaScript (no frameworks or libraries)
-  - Create a clean, modern, and user-friendly design
+  - Use only vanilla JavaScript (no frameworks)
+  - Use PatternFly 5 CSS framework via CDN for Red Hat branding
+  - Create a professional, enterprise-grade design
+  - Follow Red Hat design patterns and guidelines
   - Keep the code simple and maintainable
 
 ## Build and Deployment

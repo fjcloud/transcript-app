@@ -3,125 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Transcription</title>
+    <title>Audio Transcription - Red Hat</title>
+    <!-- PatternFly CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@5/patternfly.css">
+    <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@5/patternfly-addons.css">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎙️ Audio Transcription</h1>
-            <p>Record or upload audio to transcribe with Whisper AI</p>
+    <div class="pf-v5-c-page">
+        <!-- Header -->
+        <header class="pf-v5-c-masthead" id="page-masthead">
+            <div class="pf-v5-c-masthead__main">
+                <div class="pf-v5-c-masthead__brand">
+                    <div class="pf-v5-c-brand">
+                        <span class="pf-v5-c-title pf-m-2xl">🎙️ Audio Transcription</span>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <main>
-            <div class="card">
-                <h2>Record Audio</h2>
-                <div class="record-section">
-                    <button id="recordBtn" class="btn btn-record">
-                        <span class="btn-icon">⏺</span>
-                        <span class="btn-text">Start Recording</span>
-                    </button>
-                    <div id="recordingStatus" class="status"></div>
-                    <div id="recordingTime" class="recording-time"></div>
-                    <audio id="audioPlayback" controls style="display: none;"></audio>
+        <!-- Main content -->
+        <div class="pf-v5-c-page__main">
+            <section class="pf-v5-c-page__main-section pf-m-light">
+                <div class="pf-v5-l-grid pf-m-gutter">
+                    <div class="pf-v5-l-grid__item pf-m-12-col">
+                        <div class="pf-v5-c-content">
+                            <h1>Audio Transcription Service</h1>
+                            <p>Record or upload audio to transcribe with Whisper AI and generate summaries with LLM</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="divider">
-                <span>OR</span>
-            </div>
+            <section class="pf-v5-c-page__main-section">
+                <div class="pf-v5-l-grid pf-m-gutter">
+                    <!-- Record Audio Card -->
+                    <div class="pf-v5-l-grid__item pf-m-12-col pf-m-6-col-on-lg">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <h2 class="pf-v5-c-title pf-m-lg">
+                                    <span class="pf-v5-c-icon pf-m-lg">
+                                        <i class="fas fa-microphone"></i>
+                                    </span>
+                                    Record Audio
+                                </h2>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <div class="record-section">
+                                    <button id="recordBtn" class="pf-v5-c-button pf-m-primary pf-m-block">
+                                        <span class="btn-icon">⏺</span>
+                                        <span class="btn-text">Start Recording</span>
+                                    </button>
+                                    <div id="recordingStatus" class="status-message"></div>
+                                    <div id="recordingTime" class="recording-time"></div>
+                                    <audio id="audioPlayback" controls style="display: none; width: 100%; margin-top: 1rem;"></audio>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="card">
-                <h2>Upload Audio File</h2>
-                <div class="upload-section">
-                    <input type="file" id="fileInput" accept=".wav,audio/wav" style="display: none;">
-                    <button id="uploadBtn" class="btn btn-upload">
-                        <span class="btn-icon">📁</span>
-                        <span class="btn-text">Choose WAV File</span>
-                    </button>
-                    <div id="fileName" class="file-name"></div>
+                    <!-- Upload Audio Card -->
+                    <div class="pf-v5-l-grid__item pf-m-12-col pf-m-6-col-on-lg">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <h2 class="pf-v5-c-title pf-m-lg">
+                                    <span class="pf-v5-c-icon pf-m-lg">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    Upload Audio File
+                                </h2>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <div class="upload-section">
+                                    <input type="file" id="fileInput" accept=".wav,audio/wav" style="display: none;">
+                                    <button id="uploadBtn" class="pf-v5-c-button pf-m-secondary pf-m-block">
+                                        <span class="btn-icon">📁</span>
+                                        <span class="btn-text">Choose WAV File</span>
+                                    </button>
+                                    <div id="fileName" class="file-name"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transcribe Section -->
+                    <div id="transcribeSection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__body">
+                                <div class="pf-v5-c-form">
+                                    <div class="pf-v5-c-form__group">
+                                        <label class="pf-v5-c-form__label" for="languageSelect">
+                                            <span class="pf-v5-c-form__label-text">🌍 Audio Language</span>
+                                        </label>
+                                        <select id="languageSelect" class="pf-v5-c-form-control">
+                                            <option value="">Auto-detect</option>
+                                            <option value="en">English</option>
+                                            <option value="fr">Français</option>
+                                            <option value="es">Español</option>
+                                            <option value="de">Deutsch</option>
+                                            <option value="it">Italiano</option>
+                                            <option value="pt">Português</option>
+                                            <option value="nl">Nederlands</option>
+                                            <option value="pl">Polski</option>
+                                            <option value="ru">Русский</option>
+                                            <option value="zh">中文</option>
+                                            <option value="ja">日本語</option>
+                                            <option value="ko">한국어</option>
+                                            <option value="ar">العربية</option>
+                                            <option value="hi">हिन्दी</option>
+                                            <option value="tr">Türkçe</option>
+                                        </select>
+                                    </div>
+                                    <button id="transcribeBtn" class="pf-v5-c-button pf-m-primary pf-m-block">
+                                        <span class="btn-icon">✨</span>
+                                        <span class="btn-text">Transcribe Audio</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Section -->
+                    <div id="loadingSection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__body text-center">
+                                <div class="pf-v5-c-spinner pf-m-lg" role="progressbar">
+                                    <span class="pf-v5-c-spinner__clipper"></span>
+                                    <span class="pf-v5-c-spinner__lead-ball"></span>
+                                    <span class="pf-v5-c-spinner__tail-ball"></span>
+                                </div>
+                                <p class="loading-text">Transcribing audio...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transcription Result -->
+                    <div id="resultSection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <h2 class="pf-v5-c-title pf-m-lg">
+                                    <span class="pf-v5-c-icon pf-m-lg">✅</span>
+                                    Transcription Result
+                                </h2>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <div class="pf-v5-c-code-block">
+                                    <div class="pf-v5-c-code-block__content">
+                                        <pre id="transcriptionText" class="pf-v5-c-code-block__pre transcription-text"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-v5-c-card__footer">
+                                <div class="pf-v5-c-button-group">
+                                    <button id="summarizeBtn" class="pf-v5-c-button pf-m-primary">
+                                        <span class="btn-icon">📝</span>
+                                        <span class="btn-text">Summarize</span>
+                                    </button>
+                                    <button id="copyBtn" class="pf-v5-c-button pf-m-secondary">
+                                        <span class="btn-icon">📋</span>
+                                        <span class="btn-text">Copy to Clipboard</span>
+                                    </button>
+                                    <button id="newTranscriptionBtn" class="pf-v5-c-button pf-m-secondary">
+                                        <span class="btn-icon">🔄</span>
+                                        <span class="btn-text">New Transcription</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Loading Section -->
+                    <div id="summaryLoadingSection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__body text-center">
+                                <div class="pf-v5-c-spinner pf-m-lg" role="progressbar">
+                                    <span class="pf-v5-c-spinner__clipper"></span>
+                                    <span class="pf-v5-c-spinner__lead-ball"></span>
+                                    <span class="pf-v5-c-spinner__tail-ball"></span>
+                                </div>
+                                <p class="loading-text">Generating summary...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Result -->
+                    <div id="summarySection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-card">
+                            <div class="pf-v5-c-card__title">
+                                <h2 class="pf-v5-c-title pf-m-lg">
+                                    <span class="pf-v5-c-icon pf-m-lg">📝</span>
+                                    Summary
+                                </h2>
+                            </div>
+                            <div class="pf-v5-c-card__body">
+                                <div class="pf-v5-c-code-block">
+                                    <div class="pf-v5-c-code-block__content">
+                                        <pre id="summaryText" class="pf-v5-c-code-block__pre summary-text"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pf-v5-c-card__footer">
+                                <button id="copySummaryBtn" class="pf-v5-c-button pf-m-secondary">
+                                    <span class="btn-icon">📋</span>
+                                    <span class="btn-text">Copy Summary</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Section -->
+                    <div id="errorSection" class="pf-v5-l-grid__item pf-m-12-col" style="display: none;">
+                        <div class="pf-v5-c-alert pf-m-danger pf-m-inline" aria-label="Danger alert">
+                            <div class="pf-v5-c-alert__icon">
+                                <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                            </div>
+                            <h4 class="pf-v5-c-alert__title">
+                                <span class="pf-v5-screen-reader">Danger alert:</span>
+                                Error
+                            </h4>
+                            <div class="pf-v5-c-alert__description">
+                                <p id="errorMessage"></p>
+                            </div>
+                            <div class="pf-v5-c-alert__action">
+                                <button id="dismissErrorBtn" class="pf-v5-c-button pf-m-plain" type="button" aria-label="Close danger alert">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div id="transcribeSection" class="transcribe-section" style="display: none;">
-                <div class="language-selector">
-                    <label for="languageSelect">🌍 Audio Language:</label>
-                    <select id="languageSelect" class="language-select">
-                        <option value="">Auto-detect</option>
-                        <option value="en">English</option>
-                        <option value="fr">Français</option>
-                        <option value="es">Español</option>
-                        <option value="de">Deutsch</option>
-                        <option value="it">Italiano</option>
-                        <option value="pt">Português</option>
-                        <option value="nl">Nederlands</option>
-                        <option value="pl">Polski</option>
-                        <option value="ru">Русский</option>
-                        <option value="zh">中文</option>
-                        <option value="ja">日本語</option>
-                        <option value="ko">한국어</option>
-                        <option value="ar">العربية</option>
-                        <option value="hi">हिन्दी</option>
-                        <option value="tr">Türkçe</option>
-                    </select>
+            <!-- Footer -->
+            <section class="pf-v5-c-page__main-section pf-m-light">
+                <div class="pf-v5-c-content text-center">
+                    <p>Powered by Whisper AI and Red Hat OpenShift AI</p>
                 </div>
-                <button id="transcribeBtn" class="btn btn-primary btn-large">
-                    <span class="btn-icon">✨</span>
-                    <span class="btn-text">Transcribe Audio</span>
-                </button>
-            </div>
-
-            <div id="loadingSection" class="loading-section" style="display: none;">
-                <div class="spinner"></div>
-                <p>Transcribing audio...</p>
-            </div>
-
-            <div id="resultSection" class="result-section" style="display: none;">
-                <h2>Transcription Result</h2>
-                <div id="transcriptionText" class="transcription-text"></div>
-                <div class="action-buttons">
-                    <button id="summarizeBtn" class="btn btn-primary">
-                        <span class="btn-icon">📝</span>
-                        <span class="btn-text">Summarize</span>
-                    </button>
-                    <button id="copyBtn" class="btn btn-secondary">
-                        <span class="btn-icon">📋</span>
-                        <span class="btn-text">Copy to Clipboard</span>
-                    </button>
-                    <button id="newTranscriptionBtn" class="btn btn-secondary">
-                        <span class="btn-icon">🔄</span>
-                        <span class="btn-text">New Transcription</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="summaryLoadingSection" class="loading-section" style="display: none;">
-                <div class="spinner"></div>
-                <p>Generating summary...</p>
-            </div>
-
-            <div id="summarySection" class="summary-section" style="display: none;">
-                <h2>Summary</h2>
-                <div id="summaryText" class="summary-text"></div>
-                <button id="copySummaryBtn" class="btn btn-secondary">
-                    <span class="btn-icon">📋</span>
-                    <span class="btn-text">Copy Summary</span>
-                </button>
-            </div>
-
-            <div id="errorSection" class="error-section" style="display: none;">
-                <h3>⚠️ Error</h3>
-                <p id="errorMessage"></p>
-                <button id="dismissErrorBtn" class="btn btn-secondary">Dismiss</button>
-            </div>
-        </main>
-
-        <footer>
-            <p>Powered by Whisper AI</p>
-        </footer>
+            </section>
+        </div>
     </div>
 
     <script src="/static/app.js"></script>
 </body>
 </html>
-

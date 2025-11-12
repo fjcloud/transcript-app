@@ -14,13 +14,16 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 
 ## Architecture
 
-- **Backend**: Go server (standard library only, <200 lines)
+- **Backend**: Go server (standard library only, ~300 lines)
   - Serves static files
   - Acts as a gateway to the transcription API
-- **Frontend**: Pure JavaScript (no frameworks)
+  - Acts as a gateway to the LLM API for summarization
+- **Frontend**: Pure JavaScript with PatternFly UI
+  - Red Hat PatternFly design system for professional UI
   - Audio recording with MediaRecorder API
   - WAV file conversion and upload
   - Real-time transcription display
+  - AI-powered summarization
 
 ## Prerequisites
 
