@@ -27,10 +27,11 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 
 ## Quick Start
 
-### 1. Set the inference server URL
+### 1. Set the environment variables
 
 ```bash
 export INFERENCE_URL=http://your-whisper-server:8000
+export MODEL_NAME=whisper-1  # Optional, defaults to whisper-1
 ```
 
 ### 2. Build the application
@@ -67,6 +68,10 @@ The application will be available at `http://localhost:8080`
   - Example: `http://localhost:8000`
   - The server expects the API to be available at `/v1/audio/transcriptions`
 
+- **MODEL_NAME** (optional): Model name to use for transcription
+  - Default: `whisper-1`
+  - Example: `whisper-large-v3`, `whisper-medium`, etc.
+
 - **PORT** (optional): Port for the application (default: 8080)
 
 ## Usage
@@ -102,15 +107,15 @@ The Go server exposes the following endpoints:
 
 ```
 transcript-app/
-├── Containerfile       # Multi-stage Docker build
-├── Makefile           # Build and run commands
-├── README.md          # This file
-├── prompt.md          # Application specification
-├── server.go          # Go backend server
+├── Dockerfile         # Multi-stage Docker build with Red Hat UBI9
+├── Makefile          # Build and run commands
+├── README.md         # This file
+├── prompt.md         # Application specification
+├── server.go         # Go backend server
 └── static/
-    ├── index.html     # Web interface
-    ├── style.css      # Styling
-    └── app.js         # Frontend logic
+    ├── index.html    # Web interface
+    ├── style.css     # Styling
+    └── app.js        # Frontend logic
 ```
 
 ## Development
@@ -121,8 +126,9 @@ If you want to run the Go server locally without containers:
 
 ```bash
 # Install Go 1.23+
-# Set environment variable
+# Set environment variables
 export INFERENCE_URL=http://localhost:8000
+export MODEL_NAME=whisper-1  # Optional
 
 # Run the server
 go run server.go
@@ -162,9 +168,12 @@ model: whisper-1
 - WAV encoding for browser compatibility
 - Modern async/await patterns
 
-### Container
+### Container (Dockerfile)
 
-- Multi-stage build with Red Hat UBI images
+- Multi-stage build with Red Hat UBI9 images
+  - Build stage: `registry.access.redhat.com/ubi9/go-toolset:1.23`
+  - Runtime stage: `registry.access.redhat.com/ubi9/ubi-minimal:latest`
+- Handles UBI9 non-root user permissions correctly (UID 1001)
 - Go 1.23 toolset for building
 - Minimal runtime image for production
 - No local Go development required

@@ -19,6 +19,7 @@ run:
 		--name $(CONTAINER_NAME) \
 		-p $(PORT):8080 \
 		-e INFERENCE_URL=$$INFERENCE_URL \
+		-e MODEL_NAME=$${MODEL_NAME:-whisper-1} \
 		$(IMAGE_NAME)
 	@echo "Application started on http://localhost:$(PORT)"
 
@@ -49,9 +50,11 @@ help:
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  INFERENCE_URL - URL of the inference server (required)"
+	@echo "  MODEL_NAME    - Model name for transcription (optional, default: whisper-1)"
 	@echo ""
 	@echo "Example usage:"
 	@echo "  export INFERENCE_URL=http://localhost:8000"
+	@echo "  export MODEL_NAME=whisper-large-v3"
 	@echo "  make build"
 	@echo "  make run"
 

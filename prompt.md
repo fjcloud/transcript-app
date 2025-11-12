@@ -13,10 +13,11 @@ Create a simple audio transcription application consisting of a Go backend serve
   - Use only Go standard library (no external dependencies)
   - Keep code simple and concise (under 200 lines)
   - Handle WAV file uploads from the frontend
-  - Forward transcription requests to the Whisper API endpoint: `v1/transcription`
+  - Forward transcription requests to the Whisper API endpoint: `v1/audio/transcriptions`
   - Return transcription results to the frontend
 - **Environment Variables**:
   - `INFERENCE_URL`: The HTTP URL of the inference server (e.g., `http://localhost:8000`)
+  - `MODEL_NAME`: The model name to use for transcription (default: `whisper-1`)
 
 ### Frontend - Pure JavaScript
 - **Purpose**: Provide a simple, beautiful web interface for audio transcription
@@ -37,10 +38,14 @@ Create a simple audio transcription application consisting of a Go backend serve
 
 ## Build and Deployment
 
-### Containerfile
+### Dockerfile
+- Use Red Hat UBI9 images:
+  - Build stage: `registry.access.redhat.com/ubi9/go-toolset:1.23`
+  - Runtime stage: `registry.access.redhat.com/ubi9/ubi-minimal:latest`
 - Build the Go server entirely within the container
 - No local Go development required
-- Multi-stage build if needed for optimization
+- Multi-stage build for optimization
+- Handle UBI9 permissions correctly (non-root user 1001)
 - Final image should contain:
   - Compiled Go binary
   - Static files (HTML, CSS, JavaScript)
@@ -54,18 +59,22 @@ Create a simple audio transcription application consisting of a Go backend serve
 ## API Integration
 
 ### Whisper API Endpoint
-- **Endpoint**: `/v1/transcription`
+- **Endpoint**: `/v1/audio/transcriptions`
 - **Method**: POST
 - **Format**: OpenAI-compatible API
 - **Input**: WAV audio file
-- **Output**: Transcription text
+- **Required fields**: 
+  - `file`: WAV audio file
+  - `model`: Model name (from MODEL_NAME env var)
+- **Output**: JSON with transcription text
 
 ### Go Server Routes
 1. `GET /`: Serve the main HTML page
 2. `GET /static/*`: Serve static assets (CSS, JS)
 3. `POST /transcribe`: Proxy endpoint that:
    - Receives WAV file from frontend
-   - Forwards to `{INFERENCE_URL}/v1/transcription`
+   - Forwards to `{INFERENCE_URL}/v1/audio/transcriptions`
+   - Includes model name from MODEL_NAME environment variable
    - Returns transcription result
 
 ## Technical Specifications
@@ -98,7 +107,7 @@ Create a simple audio transcription application consisting of a Go backend serve
 ## Expected File Structure
 ```
 transcript-app/
-├── Containerfile
+├── Dockerfile
 ├── Makefile
 ├── server.go
 ├── static/

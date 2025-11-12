@@ -13,6 +13,7 @@ import (
 )
 
 var inferenceURL string
+var modelName string
 
 func main() {
 	inferenceURL = os.Getenv("INFERENCE_URL")
@@ -21,6 +22,11 @@ func main() {
 	}
 
 	inferenceURL = strings.TrimSuffix(inferenceURL, "/")
+
+	modelName = os.Getenv("MODEL_NAME")
+	if modelName == "" {
+		modelName = "whisper-1"
+	}
 
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/static/", serveStatic)
@@ -33,6 +39,7 @@ func main() {
 
 	log.Printf("Server starting on port %s", port)
 	log.Printf("Inference URL: %s", inferenceURL)
+	log.Printf("Model name: %s", modelName)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
@@ -118,7 +125,7 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add model field (required by OpenAI API)
-	if err := writer.WriteField("model", "whisper-1"); err != nil {
+	if err := writer.WriteField("model", modelName); err != nil {
 		http.Error(w, "Failed to write field: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
