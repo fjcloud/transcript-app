@@ -186,7 +186,7 @@ Create a simple audio transcription application with a Go backend server and a p
    - Includes `model` field from MODEL_NAME environment variable
    - Includes `language` field if provided by user
    - Returns transcription result as JSON
-   - Max file size: 100MB
+   - Max file size: 500MB
 4. **`POST /summarize`**: Proxy endpoint that:
    - Receives JSON with `text` field from frontend
    - Creates OpenAI-compatible chat completion request
