@@ -303,9 +303,8 @@ summarizeBtn.addEventListener('click', async () => {
         summaryLoadingSection.style.display = 'none';
         summarySection.style.display = 'block';
         
-        // Use innerHTML to preserve formatting, but escape HTML to prevent XSS
-        // Convert line breaks to <br> tags for proper display
-        const formattedSummary = escapeHtml(summary).replace(/\n/g, '<br>');
+        // Parse Markdown and display
+        const formattedSummary = parseMarkdown(summary);
         summaryText.innerHTML = formattedSummary;
         
     } catch (error) {
@@ -372,6 +371,49 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Simple Markdown parser for summaries (supports Harmony format)
+function parseMarkdown(text) {
+    // First escape HTML to prevent XSS
+    let html = escapeHtml(text);
+    
+    // Headers (## Header, ### Header)
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    
+    // Bold (**text** or __text__)
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    
+    // Italic (*text* or _text_)
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+    
+    // Unordered lists (- item or * item)
+    html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Ordered lists (1. item)
+    html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<li>$1</li>');
+    
+    // Code blocks (```code```)
+    html = html.replace(/```(.+?)```/gs, '<code>$1</code>');
+    
+    // Inline code (`code`)
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    // Line breaks
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraph if not already wrapped
+    if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<ol')) {
+        html = '<p>' + html + '</p>';
+    }
+    
+    return html;
 }
 
 function resetApp() {

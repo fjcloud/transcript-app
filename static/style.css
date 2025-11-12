@@ -164,6 +164,62 @@ body {
 
 .summary-text {
     border-left-color: #06c;
+    white-space: normal; /* Allow HTML rendering for Markdown */
+}
+
+/* Markdown formatting in summary */
+.summary-text h1,
+.summary-text h2,
+.summary-text h3 {
+    font-family: 'Red Hat Display', 'Overpass', overpass, helvetica, arial, sans-serif;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: #151515;
+}
+
+.summary-text h1 {
+    font-size: 1.5rem;
+}
+
+.summary-text h2 {
+    font-size: 1.3rem;
+}
+
+.summary-text h3 {
+    font-size: 1.1rem;
+}
+
+.summary-text strong {
+    font-weight: 700;
+    color: #151515;
+}
+
+.summary-text em {
+    font-style: italic;
+}
+
+.summary-text code {
+    background: #e5e7eb;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'RedHatMono', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.summary-text ul,
+.summary-text ol {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.summary-text li {
+    margin-bottom: 0.25rem;
+}
+
+.summary-text p {
+    margin-bottom: 0.5rem;
 }
 
 /* Button groups */

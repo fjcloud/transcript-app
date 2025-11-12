@@ -97,30 +97,39 @@ The application will be available at `http://localhost:8080`
 1. Click **"Start Recording"** to begin capturing audio
 2. Click **"Stop Recording"** when finished
 3. Review the recording using the playback controls
-4. Select the output language from the dropdown (or leave as "Auto-detect" to keep original language)
+4. Optionally select the audio language from the dropdown (or leave as "Auto-detect")
 5. Click **"Transcribe Audio"** to get the transcription
 
 ### Uploading Files
 
 1. Click **"Choose WAV File"**
 2. Select a WAV file from your computer
-3. Select the output language from the dropdown (or leave as "Auto-detect" to keep original language)
+3. Optionally select the audio language from the dropdown (or leave as "Auto-detect")
 4. Click **"Transcribe Audio"** to get the transcription
 
-### Output Language Selection
+### Audio Language Selection (Optional Hint)
 
-The application allows you to control the language of the transcription output:
-- **Auto-detect (default)**: Transcribes audio in its original spoken language
-- **Specific language**: Forces transcription/translation to a specific language from 15+ supported languages including English, French, Spanish, German, Chinese, Japanese, and more
+The language dropdown serves as an **optional hint** to improve transcription accuracy:
+- **Auto-detect (default)**: Whisper automatically detects and transcribes in the original language
+- **Specific language**: Provide a hint about the audio's spoken language for better accuracy
 
-**Note**: The audio's spoken language is automatically detected. The language selection controls the output language of the transcription. For example, if you have French audio and select "English", the transcription will be translated to English.
+**Important**: 
+- This parameter does **NOT translate** the audio
+- The transcription will always be in the **same language as the audio**
+- Whisper can only translate TO English (not implemented in this app)
+- The language hint simply helps Whisper recognize the correct language faster and more accurately
 
 ### Viewing Results
 
-- The transcription appears in a text box
+- The transcription appears in a text box (plain text format)
 - Click **"Summarize"** to generate an AI summary of the transcription
+- The summary displays with rich Markdown formatting:
+  - **Bold text**, *italic text*
+  - Headers and subheaders
+  - Bullet lists and numbered lists
+  - Inline code formatting
 - Click **"Copy to Clipboard"** to copy the transcription text
-- Click **"Copy Summary"** to copy the summary text
+- Click **"Copy Summary"** to copy the summary text (plain text)
 - Click **"New Transcription"** to start over
 
 ## API Endpoints

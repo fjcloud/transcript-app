@@ -91,13 +91,15 @@ Create a simple audio transcription application with a Go backend server and a p
      - Validate file extension (.wav)
      - Display selected filename
 
-  3. **Output Language Selection**:
-     - Dropdown menu to select the desired output language for transcription
-     - Label: "Output Language" (not "Audio Language")
-     - Helper text explaining that audio language is auto-detected
-     - Option to auto-detect (transcribe in original language) - default
+  3. **Audio Language Selection (Optional Hint)**:
+     - Dropdown menu to optionally specify the audio's spoken language
+     - Label: "Audio Language (optional hint)"
+     - Helper text: "Optionally specify the audio's spoken language to improve transcription accuracy. The audio will be transcribed in its original language (no translation)."
+     - Option to auto-detect (default) - Whisper detects language automatically
      - Support for 15+ major languages (English, French, Spanish, German, Italian, Portuguese, Dutch, Polish, Russian, Chinese, Japanese, Korean, Arabic, Hindi, Turkish)
-     - Audio language is automatically detected by Whisper; selection controls output/translation language
+     - **Important**: This parameter is a HINT to improve accuracy, NOT for translation
+     - Whisper transcribes audio in its original language
+     - For translation, Whisper only supports translation TO English (via `/v1/audio/translations` endpoint, not implemented in this app)
 
   4. **Transcription**:
      - Send WAV files to the Go server with optional language parameter
@@ -109,9 +111,15 @@ Create a simple audio transcription application with a Go backend server and a p
      - Button to generate a summary of the transcribed text
      - Send transcription text as JSON to the Go server for LLM processing
      - Display loading spinner during summary generation
-     - Display summary results with proper formatting
+     - Display summary results with Markdown rendering
      - Support multiple response formats (OpenAI, Harmony)
-     - Copy summary to clipboard
+     - Parse and render Markdown formatting:
+       - Headers (`##`, `###`) → `<h2>`, `<h3>`
+       - Bold (`**text**`) → `<strong>`
+       - Italic (`*text*`) → `<em>`
+       - Lists (`-`, `*`, `1.`) → `<ul>`, `<ol>`, `<li>`
+       - Code (`` `code` ``) → `<code>`
+     - Copy summary to clipboard (plain text without HTML)
 
 - **Requirements**:
   - Use only vanilla JavaScript (no frameworks like React, Vue, etc.)
@@ -230,10 +238,24 @@ Create a simple audio transcription application with a Go backend server and a p
 - Implement custom WAV encoder (RIFF header + PCM data)
 
 ### Text Formatting
-- Display transcription and summary in `<pre>` tags within code blocks
+
+**Transcription Display**:
+- Display in `<pre>` tags within code blocks
 - Use `white-space: pre-wrap` to preserve line breaks and spaces
 - Use `word-wrap: break-word` to prevent overflow
-- Escape HTML content to prevent XSS: `textContent` then replace `\n` with `<br>`
+- Escape HTML content to prevent XSS
+- Plain text display (no Markdown parsing)
+
+**Summary Display (Markdown Support)**:
+- Parse Markdown from LLM responses (especially Harmony format)
+- Support for:
+  - Headers: `##`, `###` → `<h2>`, `<h3>`
+  - Bold: `**text**` → `<strong>`
+  - Italic: `*text*` → `<em>`
+  - Lists: `-` or `*` → `<ul><li>`
+  - Code: `` `code` `` → `<code>`
+- Escape HTML before parsing to prevent XSS
+- Convert parsed Markdown to HTML for rich display
 - Support multiple LLM response formats (OpenAI, Harmony)
 
 ### Error Handling
@@ -398,14 +420,39 @@ transcript-app/
   - Convert Float32 samples to Int16 PCM data
   - Combine header and audio data
 
-### HTML Escaping (JavaScript)
+### HTML Escaping and Markdown Parsing (JavaScript)
 ```javascript
+// Escape HTML to prevent XSS
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
-// Then: formattedText = escapeHtml(text).replace(/\n/g, '<br>')
+
+// Parse Markdown (for summaries)
+function parseMarkdown(text) {
+    let html = escapeHtml(text); // XSS protection first
+    
+    // Headers
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    
+    // Bold and Italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Lists
+    html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Code
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
+}
 ```
 
 ### PatternFly Integration
