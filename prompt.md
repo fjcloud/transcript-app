@@ -42,6 +42,30 @@ Create a simple audio transcription application with a Go backend server and a p
     - Red hover: `#c00`
     - Blue links: `#06c`
 
+- **Typography** (Official Red Hat Brand Standards):
+  - Font Family: Red Hat Display and Red Hat Text
+  - Load via CDN or Google Fonts:
+    - `https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Red+Hat+Text:wght@400;500;700&display=swap`
+  - Usage:
+    - **Red Hat Display**: Headers, titles, call-to-action buttons, banners
+    - **Red Hat Text**: Body text, paragraphs, descriptions, subtitles
+  - Characteristics:
+    - Geometric, rational, and clean with a human dimension
+    - Formed from perfect circles and straight, regular lines
+    - Open Source under SIL International license
+  - Line spacing (leading):
+    - Body text: 1.2 to 1.5 times line height
+    - Large text (>150pt): 1.1 times line height
+  - Alignment:
+    - Primary: Left-aligned (default for readability)
+    - Center: Only for titles, captions, or special emphasis (max 30 words)
+    - Right: Only for special cases (narrow sidebars)
+    - Never justify text
+  - Letter spacing (tracking):
+    - Use default letter spacing (already optimized)
+    - Do not modify
+  - Reference: [Red Hat Typography Standards](https://www.redhat.com/fr/about/brand/standards/typography)
+
 - **PatternFly Components to Use**:
   - `pf-v5-c-page`: Page layout structure
   - `pf-v5-c-masthead`: Top header with Red Hat branding
@@ -182,16 +206,16 @@ Create a simple audio transcription application with a Go backend server and a p
 3. **`POST /transcribe`**: Proxy endpoint that:
    - Receives WAV file from frontend via multipart form
    - Receives optional `language` parameter from frontend
-   - Forwards to `{INFERENCE_URL}/v1/audio/transcriptions`
-   - Includes `model` field from MODEL_NAME environment variable
+   - Forwards to `{AUDIO_INFERENCE_URL}/v1/audio/transcriptions`
+   - Includes `model` field from AUDIO_MODEL_NAME environment variable
    - Includes `language` field if provided by user
    - Returns transcription result as JSON
    - Max file size: 500MB
 4. **`POST /summarize`**: Proxy endpoint that:
    - Receives JSON with `text` field from frontend
    - Creates OpenAI-compatible chat completion request
-   - Forwards to `{LLM_URL}/v1/chat/completions`
-   - Includes `model` from LLM_MODEL environment variable
+   - Forwards to `{LLM_INFERENCE_URL}/v1/chat/completions`
+   - Includes `model` from LLM_MODEL_NAME environment variable
    - Includes system and user prompts for summarization
    - Returns summary result as JSON
 
@@ -221,7 +245,7 @@ Create a simple audio transcription application with a Go backend server and a p
 - Hide error when user starts new action
 
 ### Security Considerations
-- Validate file size limits (100MB max)
+- Validate file size limits (500MB max)
 - Sanitize user inputs and escape HTML
 - Prevent directory traversal in static file serving
 - Environment variable validation on startup
@@ -234,6 +258,61 @@ Create a simple audio transcription application with a Go backend server and a p
 - Buttons adapt to screen size
 - Text size adjustments for readability
 - Touch-friendly button sizes
+
+### Typography Implementation
+Following [Red Hat Brand Standards](https://www.redhat.com/fr/about/brand/standards/typography):
+
+**Font Loading**:
+```html
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Red+Hat+Text:wght@400;500;700&display=swap" rel="stylesheet">
+```
+
+**CSS Implementation**:
+```css
+body {
+  font-family: 'Red Hat Text', 'Overpass', overpass, helvetica, arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5; /* 1.2-1.5 for body text */
+  text-align: left; /* Always left-aligned by default */
+}
+
+h1, h2, h3, h4, h5, h6, .pf-v5-c-title {
+  font-family: 'Red Hat Display', 'Overpass', overpass, helvetica, arial, sans-serif;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.pf-v5-c-button {
+  font-family: 'Red Hat Display', 'Overpass', overpass, helvetica, arial, sans-serif;
+  font-weight: 500;
+}
+
+/* Large text (>150pt equivalent ~112px) */
+.large-text {
+  line-height: 1.1;
+}
+
+/* Never justify text */
+p, div {
+  text-align: left;
+  text-justify: none;
+}
+
+/* Use default letter-spacing (do not modify) */
+* {
+  letter-spacing: normal;
+}
+```
+
+**Typography Rules**:
+- Use Red Hat Display for: titles, headers, buttons, call-to-actions
+- Use Red Hat Text for: body text, descriptions, labels, help text
+- Line height: 1.2-1.5 for body text, 1.1 for very large text
+- Alignment: Left-aligned (default), center only for titles/captions
+- Never justify text
+- Never modify letter-spacing
+- Fonts are geometric, formed from circles and straight lines
+- Open Source under SIL International license
 
 ## Development Guidelines
 
@@ -276,9 +355,9 @@ transcript-app/
    - Displays loading spinner
 6. Go server:
    - Receives multipart form data
-   - Validates WAV file
+   - Validates WAV file (max 500MB)
    - Creates new multipart request with file, model, and optional language
-   - Forwards to `{INFERENCE_URL}/v1/audio/transcriptions`
+   - Forwards to `{AUDIO_INFERENCE_URL}/v1/audio/transcriptions`
    - Returns response to frontend
 7. Frontend:
    - Receives transcription result
@@ -298,7 +377,7 @@ transcript-app/
      - System prompt: Summarization instructions
      - User prompt: The transcription text
      - Temperature: 0.7
-   - Forwards to `{LLM_URL}/v1/chat/completions`
+   - Forwards to `{LLM_INFERENCE_URL}/v1/chat/completions`
    - Returns response to frontend
 4. Frontend:
    - Receives summary result

@@ -13,34 +13,34 @@ import (
 	"strings"
 )
 
-var inferenceURL string
-var modelName string
-var llmURL string
-var llmModel string
+var audioInferenceURL string
+var audioModelName string
+var llmInferenceURL string
+var llmModelName string
 
 func main() {
-	inferenceURL = os.Getenv("INFERENCE_URL")
-	if inferenceURL == "" {
-		log.Fatal("INFERENCE_URL environment variable is required")
+	audioInferenceURL = os.Getenv("AUDIO_INFERENCE_URL")
+	if audioInferenceURL == "" {
+		log.Fatal("AUDIO_INFERENCE_URL environment variable is required")
 	}
 
-	inferenceURL = strings.TrimSuffix(inferenceURL, "/")
+	audioInferenceURL = strings.TrimSuffix(audioInferenceURL, "/")
 
-	modelName = os.Getenv("MODEL_NAME")
-	if modelName == "" {
-		modelName = "whisper-1"
+	audioModelName = os.Getenv("AUDIO_MODEL_NAME")
+	if audioModelName == "" {
+		audioModelName = "whisper-1"
 	}
 
-	llmURL = os.Getenv("LLM_URL")
-	if llmURL == "" {
-		log.Fatal("LLM_URL environment variable is required")
+	llmInferenceURL = os.Getenv("LLM_INFERENCE_URL")
+	if llmInferenceURL == "" {
+		log.Fatal("LLM_INFERENCE_URL environment variable is required")
 	}
 
-	llmURL = strings.TrimSuffix(llmURL, "/")
+	llmInferenceURL = strings.TrimSuffix(llmInferenceURL, "/")
 
-	llmModel = os.Getenv("LLM_MODEL")
-	if llmModel == "" {
-		llmModel = "gpt-3.5-turbo"
+	llmModelName = os.Getenv("LLM_MODEL_NAME")
+	if llmModelName == "" {
+		llmModelName = "gpt-3.5-turbo"
 	}
 
 	http.HandleFunc("/", serveIndex)
@@ -54,10 +54,10 @@ func main() {
 	}
 
 	log.Printf("Server starting on port %s", port)
-	log.Printf("Inference URL: %s", inferenceURL)
-	log.Printf("Model name: %s", modelName)
-	log.Printf("LLM URL: %s", llmURL)
-	log.Printf("LLM model: %s", llmModel)
+	log.Printf("Audio Inference URL: %s", audioInferenceURL)
+	log.Printf("Audio Model name: %s", audioModelName)
+	log.Printf("LLM Inference URL: %s", llmInferenceURL)
+	log.Printf("LLM Model name: %s", llmModelName)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
@@ -106,8 +106,8 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse multipart form (max 100MB)
-	if err := r.ParseMultipartForm(100 << 20); err != nil {
+	// Parse multipart form (max 500MB)
+	if err := r.ParseMultipartForm(500 << 20); err != nil {
 		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -143,7 +143,7 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add model field (required by OpenAI API)
-	if err := writer.WriteField("model", modelName); err != nil {
+	if err := writer.WriteField("model", audioModelName); err != nil {
 		http.Error(w, "Failed to write field: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -163,7 +163,7 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Forward request to inference server
-	apiURL := fmt.Sprintf("%s/v1/audio/transcriptions", inferenceURL)
+	apiURL := fmt.Sprintf("%s/v1/audio/transcriptions", audioInferenceURL)
 	req, err := http.NewRequest("POST", apiURL, &buf)
 	if err != nil {
 		http.Error(w, "Failed to create request: "+err.Error(), http.StatusInternalServerError)
@@ -223,7 +223,7 @@ func summarizeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare LLM request in OpenAI format
 	llmRequest := map[string]interface{}{
-		"model": llmModel,
+		"model": llmModelName,
 		"messages": []map[string]string{
 			{
 				"role":    "system",
@@ -244,7 +244,7 @@ func summarizeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Forward request to LLM API
-	apiURL := fmt.Sprintf("%s/v1/chat/completions", llmURL)
+	apiURL := fmt.Sprintf("%s/v1/chat/completions", llmInferenceURL)
 	req, err := http.NewRequest("POST", apiURL, bytes.NewReader(llmRequestBody))
 	if err != nil {
 		http.Error(w, "Failed to create request: "+err.Error(), http.StatusInternalServerError)

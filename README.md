@@ -36,10 +36,10 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 ### 1. Set the environment variables
 
 ```bash
-export INFERENCE_URL=http://your-whisper-server:8000
-export MODEL_NAME=whisper-1  # Optional, defaults to whisper-1
-export LLM_URL=http://your-llm-server:8000
-export LLM_MODEL=gpt-3.5-turbo  # Optional, defaults to gpt-3.5-turbo
+export AUDIO_INFERENCE_URL=http://your-whisper-server:8000
+export AUDIO_MODEL_NAME=whisper-1  # Optional, defaults to whisper-1
+export LLM_INFERENCE_URL=http://your-llm-server:8000
+export LLM_MODEL_NAME=gpt-3.5-turbo  # Optional, defaults to gpt-3.5-turbo
 ```
 
 ### 2. Build the application
@@ -72,19 +72,19 @@ The application will be available at `http://localhost:8080`
 
 ### Environment Variables
 
-- **INFERENCE_URL** (required): URL of the OpenAI-compatible Whisper API server
+- **AUDIO_INFERENCE_URL** (required): URL of the OpenAI-compatible Whisper API server
   - Example: `http://localhost:8000`
   - The server expects the API to be available at `/v1/audio/transcriptions`
 
-- **MODEL_NAME** (optional): Model name to use for transcription
+- **AUDIO_MODEL_NAME** (optional): Model name to use for transcription
   - Default: `whisper-1`
   - Example: `whisper-large-v3`, `whisper-medium`, etc.
 
-- **LLM_URL** (required): URL of the OpenAI-compatible LLM API server
+- **LLM_INFERENCE_URL** (required): URL of the OpenAI-compatible LLM API server
   - Example: `http://localhost:8001`
   - The server expects the API to be available at `/v1/chat/completions`
 
-- **LLM_MODEL** (optional): LLM model name to use for summarization
+- **LLM_MODEL_NAME** (optional): LLM model name to use for summarization
   - Default: `gpt-3.5-turbo`
   - Example: `gpt-4`, `llama3`, `mistral`, etc.
 
@@ -156,10 +156,10 @@ If you want to run the Go server locally without containers:
 ```bash
 # Install Go 1.23+
 # Set environment variables
-export INFERENCE_URL=http://localhost:8000
-export MODEL_NAME=whisper-1  # Optional
-export LLM_URL=http://localhost:8001
-export LLM_MODEL=gpt-3.5-turbo  # Optional
+export AUDIO_INFERENCE_URL=http://localhost:8000
+export AUDIO_MODEL_NAME=whisper-1  # Optional
+export LLM_INFERENCE_URL=http://localhost:8001
+export LLM_MODEL_NAME=gpt-3.5-turbo  # Optional
 
 # Run the server
 go run server.go
@@ -243,12 +243,12 @@ Content-Type: application/json
 
 ## Troubleshooting
 
-### "INFERENCE_URL environment variable is required"
+### "AUDIO_INFERENCE_URL environment variable is required"
 
 Make sure to set the required environment variables before running:
 ```bash
-export INFERENCE_URL=http://your-whisper-server:8000
-export LLM_URL=http://your-llm-server:8001
+export AUDIO_INFERENCE_URL=http://your-whisper-server:8000
+export LLM_INFERENCE_URL=http://your-llm-server:8001
 make run
 ```
 
@@ -274,7 +274,7 @@ make run
 ### File upload fails
 
 - Ensure the file is in WAV format
-- Check file size (limit: 100MB)
+- Check file size (limit: 500MB)
 - Verify the API server is responding
 
 ## License
