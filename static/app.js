@@ -373,47 +373,19 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Simple Markdown parser for summaries (supports Harmony format)
+// Markdown parser using marked.js (supports Harmony format)
 function parseMarkdown(text) {
-    // First escape HTML to prevent XSS
-    let html = escapeHtml(text);
+    // Configure marked options
+    marked.setOptions({
+        breaks: true,        // Convert \n to <br>
+        gfm: true,          // GitHub Flavored Markdown
+        headerIds: false,   // Don't add IDs to headers
+        mangle: false,      // Don't escape email addresses
+        sanitize: false     // marked v5+ doesn't sanitize by default
+    });
     
-    // Headers (## Header, ### Header)
-    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    
-    // Bold (**text** or __text__)
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
-    
-    // Italic (*text* or _text_)
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
-    
-    // Unordered lists (- item or * item)
-    html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    
-    // Ordered lists (1. item)
-    html = html.replace(/^\s*\d+\.\s+(.+)$/gm, '<li>$1</li>');
-    
-    // Code blocks (```code```)
-    html = html.replace(/```(.+?)```/gs, '<code>$1</code>');
-    
-    // Inline code (`code`)
-    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-    
-    // Line breaks
-    html = html.replace(/\n\n/g, '</p><p>');
-    html = html.replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph if not already wrapped
-    if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<ol')) {
-        html = '<p>' + html + '</p>';
-    }
-    
-    return html;
+    // Parse markdown to HTML
+    return marked.parse(text);
 }
 
 function resetApp() {

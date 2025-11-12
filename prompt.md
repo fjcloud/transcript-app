@@ -42,6 +42,12 @@ Create a simple audio transcription application with a Go backend server and a p
     - Red hover: `#c00`
     - Blue links: `#06c`
 
+- **JavaScript Libraries**:
+  - marked.js for Markdown parsing (summaries only)
+  - Load via CDN: `https://cdn.jsdelivr.net/npm/marked/marked.min.js`
+  - Lightweight (~10KB), well-tested, supports GitHub Flavored Markdown
+  - Used only for rendering LLM summaries with Markdown formatting
+
 - **Typography** (Official Red Hat Brand Standards):
   - Font Family: Red Hat Display and Red Hat Text
   - Load via CDN or Google Fonts:
@@ -124,13 +130,13 @@ Create a simple audio transcription application with a Go backend server and a p
 - **Requirements**:
   - Use only vanilla JavaScript (no frameworks like React, Vue, etc.)
   - Use PatternFly 5 CSS framework via CDN for Red Hat branding
+  - Use marked.js library via CDN for Markdown parsing (summaries only)
   - Create a professional, enterprise-grade design
   - Follow Red Hat design patterns and guidelines
   - Implement responsive design (mobile, tablet, desktop)
   - Keep the code simple and maintainable
   - Escape HTML in user content to prevent XSS attacks
-  - Convert newlines to `<br>` tags for proper display
-  - Use `white-space: pre-wrap` for text formatting
+  - Use marked.js to parse Markdown in summaries (Harmony format support)
 
 ## Build and Deployment
 
@@ -339,7 +345,9 @@ p, div {
 ## Development Guidelines
 
 1. **Simplicity First**: Keep the codebase minimal and easy to understand
-2. **No External Dependencies**: Use only standard libraries for Go; PatternFly via CDN for frontend
+2. **Minimal Dependencies**: 
+   - Go: Use only standard library (no external dependencies)
+   - Frontend: PatternFly and marked.js via CDN only (no frameworks, no build process)
 3. **Container-Only Build**: All Go compilation happens inside the container
 4. **Enterprise UI**: Create a professional Red Hat-branded interface with PatternFly
 5. **Clear Error Messages**: Provide helpful feedback to users
@@ -421,39 +429,44 @@ transcript-app/
   - Combine header and audio data
 
 ### HTML Escaping and Markdown Parsing (JavaScript)
+
+**Load marked.js library**:
+```html
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+```
+
+**Implementation**:
 ```javascript
-// Escape HTML to prevent XSS
+// Escape HTML to prevent XSS (for plain text display)
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Parse Markdown (for summaries)
+// Parse Markdown using marked.js (for summaries)
 function parseMarkdown(text) {
-    let html = escapeHtml(text); // XSS protection first
+    // Configure marked options
+    marked.setOptions({
+        breaks: true,        // Convert \n to <br>
+        gfm: true,          // GitHub Flavored Markdown
+        headerIds: false,   // Don't add IDs to headers
+        mangle: false,      // Don't escape email addresses
+        sanitize: false     // marked v5+ doesn't sanitize by default (escapes HTML)
+    });
     
-    // Headers
-    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    
-    // Bold and Italic
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Lists
-    html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    
-    // Code
-    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-    
-    // Line breaks
-    html = html.replace(/\n/g, '<br>');
-    
-    return html;
+    // Parse markdown to HTML
+    return marked.parse(text);
 }
 ```
+
+**Benefits of using marked.js**:
+- Industry-standard, well-tested Markdown parser
+- Handles edge cases and complex Markdown correctly
+- GitHub Flavored Markdown support (tables, task lists, etc.)
+- Automatic HTML escaping for security
+- Lightweight (~10KB minified)
+- No build process required (CDN)
 
 ### PatternFly Integration
 - Load CSS from CDN in `<head>`
