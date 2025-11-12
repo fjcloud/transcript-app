@@ -97,23 +97,23 @@ The application will be available at `http://localhost:8080`
 1. Click **"Start Recording"** to begin capturing audio
 2. Click **"Stop Recording"** when finished
 3. Review the recording using the playback controls
-4. Select the audio language from the dropdown (or leave as "Auto-detect")
+4. Select the output language from the dropdown (or leave as "Auto-detect" to keep original language)
 5. Click **"Transcribe Audio"** to get the transcription
 
 ### Uploading Files
 
 1. Click **"Choose WAV File"**
 2. Select a WAV file from your computer
-3. Select the audio language from the dropdown (or leave as "Auto-detect")
+3. Select the output language from the dropdown (or leave as "Auto-detect" to keep original language)
 4. Click **"Transcribe Audio"** to get the transcription
 
-### Language Selection
+### Output Language Selection
 
-The application supports selecting the source language of your audio for more accurate transcription:
-- **Auto-detect**: Let Whisper automatically detect the language
-- **Specific language**: Choose from 15+ supported languages including English, French, Spanish, German, Chinese, Japanese, and more
+The application allows you to control the language of the transcription output:
+- **Auto-detect (default)**: Transcribes audio in its original spoken language
+- **Specific language**: Forces transcription/translation to a specific language from 15+ supported languages including English, French, Spanish, German, Chinese, Japanese, and more
 
-Selecting the correct language helps avoid automatic translation and ensures the transcription is in the original language.
+**Note**: The audio's spoken language is automatically detected. The language selection controls the output language of the transcription. For example, if you have French audio and select "English", the transcription will be translated to English.
 
 ### Viewing Results
 
