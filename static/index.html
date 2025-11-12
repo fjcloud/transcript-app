@@ -79,13 +79,33 @@
             <div id="resultSection" class="result-section" style="display: none;">
                 <h2>Transcription Result</h2>
                 <div id="transcriptionText" class="transcription-text"></div>
-                <button id="copyBtn" class="btn btn-secondary">
+                <div class="action-buttons">
+                    <button id="summarizeBtn" class="btn btn-primary">
+                        <span class="btn-icon">📝</span>
+                        <span class="btn-text">Summarize</span>
+                    </button>
+                    <button id="copyBtn" class="btn btn-secondary">
+                        <span class="btn-icon">📋</span>
+                        <span class="btn-text">Copy to Clipboard</span>
+                    </button>
+                    <button id="newTranscriptionBtn" class="btn btn-secondary">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">New Transcription</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="summaryLoadingSection" class="loading-section" style="display: none;">
+                <div class="spinner"></div>
+                <p>Generating summary...</p>
+            </div>
+
+            <div id="summarySection" class="summary-section" style="display: none;">
+                <h2>Summary</h2>
+                <div id="summaryText" class="summary-text"></div>
+                <button id="copySummaryBtn" class="btn btn-secondary">
                     <span class="btn-icon">📋</span>
-                    <span class="btn-text">Copy to Clipboard</span>
-                </button>
-                <button id="newTranscriptionBtn" class="btn btn-secondary">
-                    <span class="btn-icon">🔄</span>
-                    <span class="btn-text">New Transcription</span>
+                    <span class="btn-text">Copy Summary</span>
                 </button>
             </div>
 

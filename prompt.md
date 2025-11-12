@@ -1,7 +1,7 @@
 # Audio Transcription Application
 
 ## Overview
-Create a simple audio transcription application consisting of a Go backend server and a pure JavaScript frontend. The application allows users to record or upload WAV audio files and transcribe them using an OpenAI-compatible Whisper API.
+Create a simple audio transcription application consisting of a Go backend server and a pure JavaScript frontend. The application allows users to record or upload WAV audio files, transcribe them using an OpenAI-compatible Whisper API, and generate summaries using an OpenAI-compatible LLM API.
 
 ## Architecture
 
@@ -9,18 +9,22 @@ Create a simple audio transcription application consisting of a Go backend serve
 - **Purpose**: 
   - Serve static files (HTML, CSS, JavaScript)
   - Act as a gateway/proxy to the transcription API
+  - Act as a gateway/proxy to the LLM API for summarization
 - **Requirements**:
   - Use only Go standard library (no external dependencies)
-  - Keep code simple and concise (under 200 lines)
+  - Keep code simple and concise (under 300 lines)
   - Handle WAV file uploads from the frontend
   - Forward transcription requests to the Whisper API endpoint: `v1/audio/transcriptions`
-  - Return transcription results to the frontend
+  - Forward summarization requests to the LLM API endpoint: `v1/chat/completions`
+  - Return transcription and summarization results to the frontend
 - **Environment Variables**:
-  - `INFERENCE_URL`: The HTTP URL of the inference server (e.g., `http://localhost:8000`)
+  - `INFERENCE_URL`: The HTTP URL of the Whisper inference server (e.g., `http://localhost:8000`)
   - `MODEL_NAME`: The model name to use for transcription (default: `whisper-1`)
+  - `LLM_URL`: The HTTP URL of the LLM server (e.g., `http://localhost:8001`)
+  - `LLM_MODEL`: The LLM model name to use for summarization (default: `gpt-3.5-turbo`)
 
 ### Frontend - Pure JavaScript
-- **Purpose**: Provide a simple, beautiful web interface for audio transcription
+- **Purpose**: Provide a simple, beautiful web interface for audio transcription and summarization
 - **Features**:
   1. **Audio Recording**:
      - Request microphone permissions from the user
@@ -35,6 +39,11 @@ Create a simple audio transcription application consisting of a Go backend serve
   4. **Transcription**:
      - Send WAV files to the Go server with selected language
      - Display transcription results
+  5. **Summarization**:
+     - Button to generate a summary of the transcribed text
+     - Send transcription text to the Go server for LLM processing
+     - Display summary results
+     - Copy summary to clipboard
 - **Requirements**:
   - Use only vanilla JavaScript (no frameworks or libraries)
   - Create a clean, modern, and user-friendly design
@@ -72,6 +81,16 @@ Create a simple audio transcription application consisting of a Go backend serve
   - `model`: Model name (from MODEL_NAME env var)
 - **Output**: JSON with transcription text
 
+### LLM API Endpoint
+- **Endpoint**: `/v1/chat/completions`
+- **Method**: POST
+- **Format**: OpenAI-compatible API
+- **Input**: JSON with messages
+- **Required fields**:
+  - `model`: Model name (from LLM_MODEL env var)
+  - `messages`: Array of message objects with role and content
+- **Output**: JSON with summary in choices[0].message.content
+
 ### Go Server Routes
 1. `GET /`: Serve the main HTML page
 2. `GET /static/*`: Serve static assets (CSS, JS)
@@ -82,6 +101,13 @@ Create a simple audio transcription application consisting of a Go backend serve
    - Includes model name from MODEL_NAME environment variable
    - Includes language code if provided by user
    - Returns transcription result
+4. `POST /summarize`: Proxy endpoint that:
+   - Receives JSON with `text` field from frontend
+   - Creates OpenAI-compatible chat completion request
+   - Forwards to `{LLM_URL}/v1/chat/completions`
+   - Includes model name from LLM_MODEL environment variable
+   - Includes system and user prompts for summarization
+   - Returns summary result
 
 ## Technical Specifications
 
@@ -124,6 +150,8 @@ transcript-app/
 ```
 
 ## Usage Flow
+
+### Transcription Flow
 1. User opens the web application
 2. User either:
    - Clicks "Record" → records audio → stops recording → gets WAV file
@@ -133,4 +161,15 @@ transcript-app/
 5. Frontend sends WAV file and language to Go server (`POST /transcribe`)
 6. Go server forwards request with language parameter to Whisper API
 7. Transcription result is returned and displayed to the user
+
+### Summarization Flow
+1. After transcription is displayed, user clicks "Summarize" button
+2. Frontend sends transcription text as JSON to Go server (`POST /summarize`)
+3. Go server creates OpenAI-compatible chat completion request with:
+   - System prompt: Instructions for summarization task
+   - User prompt: The transcription text to summarize
+4. Go server forwards request to LLM API endpoint
+5. LLM generates a concise summary of the transcription
+6. Summary result is returned and displayed to the user
+7. User can copy the summary to clipboard
 

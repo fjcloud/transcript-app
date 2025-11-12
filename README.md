@@ -8,6 +8,7 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 - 📁 **File Upload**: Upload existing WAV files
 - 🌍 **Language Selection**: Choose the audio language for better transcription accuracy
 - ✨ **AI Transcription**: Powered by OpenAI-compatible Whisper API
+- 📝 **AI Summarization**: Get concise summaries of transcribed text using LLM
 - 🎨 **Modern UI**: Clean, responsive design with great UX
 - 🐳 **Container-Ready**: Easy deployment with Podman/Docker
 
@@ -25,6 +26,7 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 
 - Podman or Docker
 - An OpenAI-compatible Whisper API endpoint (e.g., faster-whisper, whisper.cpp)
+- An OpenAI-compatible LLM API endpoint (e.g., vLLM, Ollama, OpenAI API)
 
 ## Quick Start
 
@@ -33,6 +35,8 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 ```bash
 export INFERENCE_URL=http://your-whisper-server:8000
 export MODEL_NAME=whisper-1  # Optional, defaults to whisper-1
+export LLM_URL=http://your-llm-server:8000
+export LLM_MODEL=gpt-3.5-turbo  # Optional, defaults to gpt-3.5-turbo
 ```
 
 ### 2. Build the application
@@ -73,6 +77,14 @@ The application will be available at `http://localhost:8080`
   - Default: `whisper-1`
   - Example: `whisper-large-v3`, `whisper-medium`, etc.
 
+- **LLM_URL** (required): URL of the OpenAI-compatible LLM API server
+  - Example: `http://localhost:8001`
+  - The server expects the API to be available at `/v1/chat/completions`
+
+- **LLM_MODEL** (optional): LLM model name to use for summarization
+  - Default: `gpt-3.5-turbo`
+  - Example: `gpt-4`, `llama3`, `mistral`, etc.
+
 - **PORT** (optional): Port for the application (default: 8080)
 
 ## Usage
@@ -103,16 +115,19 @@ Selecting the correct language helps avoid automatic translation and ensures the
 ### Viewing Results
 
 - The transcription appears in a text box
-- Click **"Copy to Clipboard"** to copy the text
+- Click **"Summarize"** to generate an AI summary of the transcription
+- Click **"Copy to Clipboard"** to copy the transcription text
+- Click **"Copy Summary"** to copy the summary text
 - Click **"New Transcription"** to start over
 
-## API Endpoint
+## API Endpoints
 
 The Go server exposes the following endpoints:
 
 - `GET /` - Main application page
 - `GET /static/*` - Static files (CSS, JS)
 - `POST /transcribe` - Transcription endpoint (proxy to Whisper API)
+- `POST /summarize` - Summarization endpoint (proxy to LLM API)
 
 ## File Structure
 
@@ -140,6 +155,8 @@ If you want to run the Go server locally without containers:
 # Set environment variables
 export INFERENCE_URL=http://localhost:8000
 export MODEL_NAME=whisper-1  # Optional
+export LLM_URL=http://localhost:8001
+export LLM_MODEL=gpt-3.5-turbo  # Optional
 
 # Run the server
 go run server.go
@@ -161,6 +178,30 @@ Content-Type: multipart/form-data
 
 file: <audio.wav>
 model: whisper-1
+```
+
+### Testing with an LLM API
+
+You can use various LLM API implementations:
+
+1. **vLLM**: High-performance LLM serving
+2. **Ollama**: Local LLM with OpenAI-compatible API
+3. **LM Studio**: Local LLM with API server
+4. **OpenAI API**: Official OpenAI API
+
+Make sure your API is compatible with the OpenAI chat completions endpoint format:
+
+```bash
+POST /v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "gpt-3.5-turbo",
+  "messages": [
+    {"role": "system", "content": "You are a helpful assistant..."},
+    {"role": "user", "content": "Summarize this text..."}
+  ]
+}
 ```
 
 ## Technical Details
@@ -201,9 +242,10 @@ model: whisper-1
 
 ### "INFERENCE_URL environment variable is required"
 
-Make sure to set the `INFERENCE_URL` before running:
+Make sure to set the required environment variables before running:
 ```bash
-export INFERENCE_URL=http://your-server:8000
+export INFERENCE_URL=http://your-whisper-server:8000
+export LLM_URL=http://your-llm-server:8001
 make run
 ```
 
@@ -217,6 +259,13 @@ make run
 
 - Verify the Whisper API is running and accessible
 - Check the API endpoint format is correct
+- Review logs with `make logs`
+
+### Summarization fails
+
+- Verify the LLM API is running and accessible
+- Check that the LLM API endpoint supports the OpenAI chat completions format
+- Ensure the LLM_URL is correctly set
 - Review logs with `make logs`
 
 ### File upload fails

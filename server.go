@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,8 @@ import (
 
 var inferenceURL string
 var modelName string
+var llmURL string
+var llmModel string
 
 func main() {
 	inferenceURL = os.Getenv("INFERENCE_URL")
@@ -28,9 +31,22 @@ func main() {
 		modelName = "whisper-1"
 	}
 
+	llmURL = os.Getenv("LLM_URL")
+	if llmURL == "" {
+		log.Fatal("LLM_URL environment variable is required")
+	}
+
+	llmURL = strings.TrimSuffix(llmURL, "/")
+
+	llmModel = os.Getenv("LLM_MODEL")
+	if llmModel == "" {
+		llmModel = "gpt-3.5-turbo"
+	}
+
 	http.HandleFunc("/", serveIndex)
 	http.HandleFunc("/static/", serveStatic)
 	http.HandleFunc("/transcribe", transcribeHandler)
+	http.HandleFunc("/summarize", summarizeHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -40,6 +56,8 @@ func main() {
 	log.Printf("Server starting on port %s", port)
 	log.Printf("Inference URL: %s", inferenceURL)
 	log.Printf("Model name: %s", modelName)
+	log.Printf("LLM URL: %s", llmURL)
+	log.Printf("LLM model: %s", llmModel)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
@@ -174,5 +192,86 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(resp.StatusCode)
 	w.Write(body)
+}
+
+func summarizeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Parse JSON to extract text
+	var requestData map[string]interface{}
+	if err := json.Unmarshal(body, &requestData); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	text, ok := requestData["text"].(string)
+	if !ok || text == "" {
+		http.Error(w, "Text field is required", http.StatusBadRequest)
+		return
+	}
+
+	// Prepare LLM request in OpenAI format
+	llmRequest := map[string]interface{}{
+		"model": llmModel,
+		"messages": []map[string]string{
+			{
+				"role":    "system",
+				"content": "You are a helpful assistant that summarizes transcribed audio. Provide a clear, concise summary of the main points.",
+			},
+			{
+				"role":    "user",
+				"content": fmt.Sprintf("Please summarize the following transcription:\n\n%s", text),
+			},
+		},
+		"temperature": 0.7,
+	}
+
+	llmRequestBody, err := json.Marshal(llmRequest)
+	if err != nil {
+		http.Error(w, "Failed to create LLM request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Forward request to LLM API
+	apiURL := fmt.Sprintf("%s/v1/chat/completions", llmURL)
+	req, err := http.NewRequest("POST", apiURL, bytes.NewReader(llmRequestBody))
+	if err != nil {
+		http.Error(w, "Failed to create request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	// Send request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, "Failed to call LLM API: "+err.Error(), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read response
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read LLM response: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Forward response status and body
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	w.Write(respBody)
 }
 

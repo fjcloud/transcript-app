@@ -19,6 +19,11 @@ const transcribeBtn = document.getElementById('transcribeBtn');
 const loadingSection = document.getElementById('loadingSection');
 const resultSection = document.getElementById('resultSection');
 const transcriptionText = document.getElementById('transcriptionText');
+const summarizeBtn = document.getElementById('summarizeBtn');
+const summaryLoadingSection = document.getElementById('summaryLoadingSection');
+const summarySection = document.getElementById('summarySection');
+const summaryText = document.getElementById('summaryText');
+const copySummaryBtn = document.getElementById('copySummaryBtn');
 const copyBtn = document.getElementById('copyBtn');
 const newTranscriptionBtn = document.getElementById('newTranscriptionBtn');
 const errorSection = document.getElementById('errorSection');
@@ -250,6 +255,53 @@ transcribeBtn.addEventListener('click', async () => {
     }
 });
 
+// Summarize functionality
+summarizeBtn.addEventListener('click', async () => {
+    const text = transcriptionText.textContent;
+    
+    if (!text || text === 'No transcription available') {
+        showError('No transcription text to summarize');
+        return;
+    }
+    
+    hideError();
+    summaryLoadingSection.style.display = 'block';
+    summarySection.style.display = 'none';
+    
+    try {
+        const response = await fetch('/summarize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: text })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Summarization failed: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        
+        // Extract summary from OpenAI response format
+        let summary = '';
+        if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+            summary = result.choices[0].message.content;
+        } else {
+            summary = result.text || 'No summary available';
+        }
+        
+        summaryLoadingSection.style.display = 'none';
+        summarySection.style.display = 'block';
+        summaryText.textContent = summary;
+        
+    } catch (error) {
+        summaryLoadingSection.style.display = 'none';
+        showError(error.message);
+    }
+});
+
 // Copy to clipboard
 copyBtn.addEventListener('click', async () => {
     const text = transcriptionText.textContent;
@@ -259,6 +311,21 @@ copyBtn.addEventListener('click', async () => {
         copyBtn.querySelector('.btn-text').textContent = 'Copied!';
         setTimeout(() => {
             copyBtn.querySelector('.btn-text').textContent = originalText;
+        }, 2000);
+    } catch (error) {
+        showError('Failed to copy to clipboard');
+    }
+});
+
+// Copy summary to clipboard
+copySummaryBtn.addEventListener('click', async () => {
+    const text = summaryText.textContent;
+    try {
+        await navigator.clipboard.writeText(text);
+        const originalText = copySummaryBtn.querySelector('.btn-text').textContent;
+        copySummaryBtn.querySelector('.btn-text').textContent = 'Copied!';
+        setTimeout(() => {
+            copySummaryBtn.querySelector('.btn-text').textContent = originalText;
         }, 2000);
     } catch (error) {
         showError('Failed to copy to clipboard');
@@ -302,6 +369,8 @@ function resetApp() {
     transcribeSection.style.display = 'none';
     loadingSection.style.display = 'none';
     resultSection.style.display = 'none';
+    summaryLoadingSection.style.display = 'none';
+    summarySection.style.display = 'none';
     hideError();
     
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
