@@ -284,17 +284,29 @@ summarizeBtn.addEventListener('click', async () => {
         
         const result = await response.json();
         
-        // Extract summary from OpenAI response format
+        // Extract summary from OpenAI/Harmony response format
         let summary = '';
         if (result.choices && result.choices.length > 0 && result.choices[0].message) {
             summary = result.choices[0].message.content;
+        } else if (result.response) {
+            // Harmony format
+            summary = result.response;
+        } else if (result.text) {
+            summary = result.text;
         } else {
-            summary = result.text || 'No summary available';
+            summary = 'No summary available';
         }
+        
+        // Clean and format the summary
+        summary = summary.trim();
         
         summaryLoadingSection.style.display = 'none';
         summarySection.style.display = 'block';
-        summaryText.textContent = summary;
+        
+        // Use innerHTML to preserve formatting, but escape HTML to prevent XSS
+        // Convert line breaks to <br> tags for proper display
+        const formattedSummary = escapeHtml(summary).replace(/\n/g, '<br>');
+        summaryText.innerHTML = formattedSummary;
         
     } catch (error) {
         summaryLoadingSection.style.display = 'none';
@@ -319,7 +331,8 @@ copyBtn.addEventListener('click', async () => {
 
 // Copy summary to clipboard
 copySummaryBtn.addEventListener('click', async () => {
-    const text = summaryText.textContent;
+    // Get text content without HTML tags
+    const text = summaryText.innerText || summaryText.textContent;
     try {
         await navigator.clipboard.writeText(text);
         const originalText = copySummaryBtn.querySelector('.btn-text').textContent;
@@ -353,6 +366,13 @@ function hideError() {
 }
 
 dismissErrorBtn.addEventListener('click', hideError);
+
+// Helper function to escape HTML and prevent XSS attacks
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 function resetApp() {
     audioBlob = null;

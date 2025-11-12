@@ -285,10 +285,13 @@ main {
     border-radius: 12px;
     border-left: 4px solid #10b981;
     margin-bottom: 20px;
-    line-height: 1.6;
+    line-height: 1.8;
     font-size: 1.05rem;
     color: #1f2937;
     min-height: 80px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .action-buttons {
@@ -318,10 +321,13 @@ main {
     border-radius: 12px;
     border-left: 4px solid #667eea;
     margin-bottom: 20px;
-    line-height: 1.6;
+    line-height: 1.8;
     font-size: 1.05rem;
     color: #1f2937;
     min-height: 80px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .error-section {
