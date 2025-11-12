@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ Audio Transcription</h1>
+            <p>Record or upload audio to transcribe with Whisper AI</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Record Audio</h2>
+                <div class="record-section">
+                    <button id="recordBtn" class="btn btn-record">
+                        <span class="btn-icon">⏺</span>
+                        <span class="btn-text">Start Recording</span>
+                    </button>
+                    <div id="recordingStatus" class="status"></div>
+                    <div id="recordingTime" class="recording-time"></div>
+                    <audio id="audioPlayback" controls style="display: none;"></audio>
+                </div>
+            </div>
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+            <div class="card">
+                <h2>Upload Audio File</h2>
+                <div class="upload-section">
+                    <input type="file" id="fileInput" accept=".wav,audio/wav" style="display: none;">
+                    <button id="uploadBtn" class="btn btn-upload">
+                        <span class="btn-icon">📁</span>
+                        <span class="btn-text">Choose WAV File</span>
+                    </button>
+                    <div id="fileName" class="file-name"></div>
+                </div>
+            </div>
+
+            <div id="transcribeSection" class="transcribe-section" style="display: none;">
+                <button id="transcribeBtn" class="btn btn-primary btn-large">
+                    <span class="btn-icon">✨</span>
+                    <span class="btn-text">Transcribe Audio</span>
+                </button>
+            </div>
+
+            <div id="loadingSection" class="loading-section" style="display: none;">
+                <div class="spinner"></div>
+                <p>Transcribing audio...</p>
+            </div>
+
+            <div id="resultSection" class="result-section" style="display: none;">
+                <h2>Transcription Result</h2>
+                <div id="transcriptionText" class="transcription-text"></div>
+                <button id="copyBtn" class="btn btn-secondary">
+                    <span class="btn-icon">📋</span>
+                    <span class="btn-text">Copy to Clipboard</span>
+                </button>
+                <button id="newTranscriptionBtn" class="btn btn-secondary">
+                    <span class="btn-icon">🔄</span>
+                    <span class="btn-text">New Transcription</span>
+                </button>
+            </div>
+
+            <div id="errorSection" class="error-section" style="display: none;">
+                <h3>⚠️ Error</h3>
+                <p id="errorMessage"></p>
+                <button id="dismissErrorBtn" class="btn btn-secondary">Dismiss</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by Whisper AI</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
