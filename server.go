@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var inferenceURL string
@@ -154,8 +155,10 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
-	// Send request
-	client := &http.Client{}
+	// Send request with 3 minute timeout for long transcriptions
+	client := &http.Client{
+		Timeout: 3 * time.Minute,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		http.Error(w, "Failed to call API: "+err.Error(), http.StatusBadGateway)

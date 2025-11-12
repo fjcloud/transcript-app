@@ -14,6 +14,7 @@ Create a simple audio transcription application consisting of a Go backend serve
   - Keep code simple and concise (under 200 lines)
   - Handle WAV file uploads from the frontend
   - Forward transcription requests to the Whisper API endpoint: `v1/audio/transcriptions`
+  - Set HTTP client timeout to 3 minutes for long transcriptions
   - Return transcription results to the frontend
 - **Environment Variables**:
   - `INFERENCE_URL`: The HTTP URL of the inference server (e.g., `http://localhost:8000`)

@@ -169,8 +169,9 @@ model: whisper-1
 
 - Uses only Go standard library
 - Handles multipart form uploads
-- Proxies requests to Whisper API
+- Proxies requests to Whisper API with 3-minute timeout
 - Serves static files efficiently
+- Supports long audio file transcriptions
 
 ### Frontend (JavaScript)
 
