@@ -14,6 +14,7 @@ const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
 const fileName = document.getElementById('fileName');
 const transcribeSection = document.getElementById('transcribeSection');
+const languageSelect = document.getElementById('languageSelect');
 const transcribeBtn = document.getElementById('transcribeBtn');
 const loadingSection = document.getElementById('loadingSection');
 const resultSection = document.getElementById('resultSection');
@@ -220,6 +221,12 @@ transcribeBtn.addEventListener('click', async () => {
     try {
         const formData = new FormData();
         formData.append('file', audioBlob, 'audio.wav');
+        
+        // Add language if selected
+        const language = languageSelect.value;
+        if (language) {
+            formData.append('language', language);
+        }
         
         const response = await fetch('/transcribe', {
             method: 'POST',

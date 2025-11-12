@@ -130,6 +130,15 @@ func transcribeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Add language field if provided
+	language := r.FormValue("language")
+	if language != "" {
+		if err := writer.WriteField("language", language); err != nil {
+			http.Error(w, "Failed to write language field: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	if err := writer.Close(); err != nil {
 		http.Error(w, "Failed to close writer: "+err.Error(), http.StatusInternalServerError)
 		return

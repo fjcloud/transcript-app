@@ -6,6 +6,7 @@ A simple and elegant web application for audio transcription using Whisper AI. R
 
 - 🎙️ **Audio Recording**: Record audio directly from your browser
 - 📁 **File Upload**: Upload existing WAV files
+- 🌍 **Language Selection**: Choose the audio language for better transcription accuracy
 - ✨ **AI Transcription**: Powered by OpenAI-compatible Whisper API
 - 🎨 **Modern UI**: Clean, responsive design with great UX
 - 🐳 **Container-Ready**: Easy deployment with Podman/Docker
@@ -81,13 +82,23 @@ The application will be available at `http://localhost:8080`
 1. Click **"Start Recording"** to begin capturing audio
 2. Click **"Stop Recording"** when finished
 3. Review the recording using the playback controls
-4. Click **"Transcribe Audio"** to get the transcription
+4. Select the audio language from the dropdown (or leave as "Auto-detect")
+5. Click **"Transcribe Audio"** to get the transcription
 
 ### Uploading Files
 
 1. Click **"Choose WAV File"**
 2. Select a WAV file from your computer
-3. Click **"Transcribe Audio"** to get the transcription
+3. Select the audio language from the dropdown (or leave as "Auto-detect")
+4. Click **"Transcribe Audio"** to get the transcription
+
+### Language Selection
+
+The application supports selecting the source language of your audio for more accurate transcription:
+- **Auto-detect**: Let Whisper automatically detect the language
+- **Specific language**: Choose from 15+ supported languages including English, French, Spanish, German, Chinese, Japanese, and more
+
+Selecting the correct language helps avoid automatic translation and ensures the transcription is in the original language.
 
 ### Viewing Results
 

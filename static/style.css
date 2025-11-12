@@ -206,6 +206,42 @@ main {
     margin-top: 40px;
 }
 
+.language-selector {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.language-selector label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1rem;
+}
+
+.language-select {
+    padding: 12px 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #1f2937;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+}
+
+.language-select:hover {
+    border-color: #667eea;
+}
+
+.language-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .loading-section {
     text-align: center;
     padding: 40px;

@@ -28,8 +28,12 @@ Create a simple audio transcription application consisting of a Go backend serve
      - Save recording as WAV format locally
   2. **File Upload**:
      - Allow users to upload existing WAV files
-  3. **Transcription**:
-     - Send WAV files to the Go server
+  3. **Language Selection**:
+     - Dropdown menu to select the source language of the audio
+     - Option to auto-detect language (default)
+     - Support for major languages (English, French, Spanish, etc.)
+  4. **Transcription**:
+     - Send WAV files to the Go server with selected language
      - Display transcription results
 - **Requirements**:
   - Use only vanilla JavaScript (no frameworks or libraries)
@@ -73,8 +77,10 @@ Create a simple audio transcription application consisting of a Go backend serve
 2. `GET /static/*`: Serve static assets (CSS, JS)
 3. `POST /transcribe`: Proxy endpoint that:
    - Receives WAV file from frontend
+   - Receives optional language parameter from frontend
    - Forwards to `{INFERENCE_URL}/v1/audio/transcriptions`
    - Includes model name from MODEL_NAME environment variable
+   - Includes language code if provided by user
    - Returns transcription result
 
 ## Technical Specifications
@@ -122,8 +128,9 @@ transcript-app/
 2. User either:
    - Clicks "Record" → records audio → stops recording → gets WAV file
    - Clicks "Upload" → selects a WAV file from their computer
-3. User clicks "Transcribe"
-4. Frontend sends WAV file to Go server (`POST /transcribe`)
-5. Go server forwards request to Whisper API
-6. Transcription result is returned and displayed to the user
+3. User selects the audio language from dropdown (or leaves as "Auto-detect")
+4. User clicks "Transcribe"
+5. Frontend sends WAV file and language to Go server (`POST /transcribe`)
+6. Go server forwards request with language parameter to Whisper API
+7. Transcription result is returned and displayed to the user
 
